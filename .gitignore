@@ -1,0 +1,20 @@
+# Rails
+api/storage/*.sqlite3
+api/storage/*.sqlite3-shm
+api/storage/*.sqlite3-wal
+api/log/*.log
+api/tmp/
+api/.bundle/
+api/vendor/bundle/
+api/node_modules/
+
+# React
+web/node_modules/
+web/dist/
+
+# OS
+.DS_Store
+*.swp
+
+# Local
+prompt.md

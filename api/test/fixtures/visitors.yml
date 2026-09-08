@@ -1,0 +1,26 @@
+active_visitor:
+  full_name: Jane Doe
+  company_name: Acme Corp
+  purpose: Sales meeting
+  checked_in_at: <%= 1.hour.ago.iso8601 %>
+  checked_out_at:
+  active: true
+  host: alice
+
+checked_out_visitor:
+  full_name: John Smith
+  company_name: Beta Ltd
+  purpose: Product demo
+  checked_in_at: <%= 2.hours.ago.iso8601 %>
+  checked_out_at: <%= 30.minutes.ago.iso8601 %>
+  active: true
+  host: benjamin
+
+inactive_visitor:
+  full_name: Sam Inactive
+  company_name: Gamma Inc
+  purpose: Partnership discussion
+  checked_in_at: <%= 3.hours.ago.iso8601 %>
+  checked_out_at:
+  active: false
+  host: alice
