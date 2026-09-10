@@ -37,6 +37,7 @@ class Api::VisitorsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     visitor.reload
     assert_not_nil visitor.checked_out_at
+    assert visitor.active
   end
 
   test "PATCH /api/visitors/:id/deactivate sets active to false" do
@@ -53,6 +54,20 @@ class Api::VisitorsControllerTest < ActionDispatch::IntegrationTest
     data = JSON.parse(response.body)
     assert_kind_of Array, data
     assert data.any? { |v| v["full_name"].include?("Jane") }
+  end
+
+  test "GET /api/visitors/search includes active checked-out visitors" do
+    get "/api/visitors/search?q=John"
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_includes data.map { |v| v["id"] }, visitors(:checked_out_visitor).id
+  end
+
+  test "GET /api/visitors/search excludes inactive visitors" do
+    get "/api/visitors/search?q=Sam"
+    assert_response :success
+    data = JSON.parse(response.body)
+    assert_empty data
   end
 
   test "GET /api/visitors index includes checked_out visitor in list" do

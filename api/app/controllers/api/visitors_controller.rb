@@ -4,7 +4,7 @@ module Api
 
     def index
       page = (params[:page] || 1).to_i
-      visitors = Visitor.where(checked_out_at: nil)
+      visitors = Visitor.where(checked_out_at: nil, active: true)
                         .order(:id)
                         .offset((page - 1) * PER_PAGE)
                         .limit(PER_PAGE)
@@ -36,10 +36,13 @@ module Api
 
     def search
       q = params[:q].to_s.strip
-      visitors = Visitor.where("full_name LIKE ?", "%#{q}%")
+
+      visitors = Visitor.where(active: true)
+                        .where("full_name LIKE ?", "%#{q}%")
                         .order(:full_name)
-                        .limit(10)
-      render json: visitors.map { |v| { id: v.id, full_name: v.full_name, company_name: v.company_name, host_id: v.host_id } }
+                        .limit(20)
+
+      render json: visitors.map { |v| serialize(v) }
     end
 
     private
