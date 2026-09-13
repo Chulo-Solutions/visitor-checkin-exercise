@@ -137,6 +137,7 @@ The system rejects the registration and displays a validation message requiring 
 3. [pass] Confirm a valid Host Employee is selected.
 4. [pass] Confirm a valid Purpose is entered.
 5. [pass] Confirm the form is submitted.
+6. [pass] Check the Active Visitors list.
 
 **Expected Result:**
 
@@ -144,7 +145,7 @@ The system rejects whitespace-only input and displays a validation message requi
 
 **Actual Result:**
 
-Whitespace-only input is accepted as a valid Full Name.
+Whitespace-only input is accepted as a valid Full Name and the visitor is registered.
 
 **Related Defect:**
 
@@ -203,6 +204,82 @@ The same visitor can be registered again with the same details, resulting in mul
 **Related Defect:**
 
 DEF-004 in `defect-report.md`.
+
+**Note:**
+
+The requirements do not explicitly state whether simultaneous active registrations for the same visitor are permitted. The expected behavior should be clarified with the Product Owner.
+
+---
+
+# Administrator / Visitor Status Tests
+
+## TC-ADM-001 — Verify deactivated visitor is removed from Active Visitors
+
+**Status:** [fail]
+
+**Preconditions:**
+
+- Application is running.
+- An active visitor exists.
+- Visitor `bisham` with ID `107` is active.
+
+**Steps:**
+
+1. [pass] Confirm visitor `bisham` appears in the Active Visitors list.
+2. [pass] Confirm visitor ID `107` is currently active.
+3. [pass] Confirm the deactivation endpoint is available.
+4. [pass] Send `PATCH /api/visitors/107/deactivate`.
+5. [pass] Check the API response.
+6. [pass] Confirm the response contains `"active": false`.
+7. [pass] Refresh the visitor check-in application.
+8. [pass] Check the Active Visitors list.
+9. [pass] Check whether visitor `bisham` is still displayed.
+
+**Expected Result:**
+
+The visitor should be successfully deactivated and should no longer appear in the Active Visitors list.
+
+**Actual Result:**
+
+The API successfully changes visitor `bisham` to `active: false`, but `bisham` remains visible in the Active Visitors list after refreshing the frontend.
+
+**Related Defect:**
+
+DEF-002 in `defect-report.md`.
+
+---
+
+# Timezone / Data Display Tests
+
+## TC-TIME-001 — Verify check-in time is displayed in receptionist local timezone
+
+**Status:** [fail]
+
+**Preconditions:**
+
+- Application is running.
+- The receptionist's local timezone is Asia/Kathmandu.
+
+**Steps:**
+
+1. [pass] Confirm the receptionist's local timezone is Asia/Kathmandu.
+2. [pass] Confirm the current local time.
+3. [pass] Register a visitor with valid information.
+4. [pass] Confirm the visitor appears in the Active Visitors list.
+5. [pass] Check the displayed check-in time.
+6. [pass] Compare the displayed check-in time with the actual receptionist local time.
+
+**Expected Result:**
+
+The check-in time should be displayed in the receptionist's local timezone.
+
+**Actual Result:**
+
+The displayed check-in time does not match the receptionist's local timezone.
+
+**Related Defect:**
+
+DEF-005 in `defect-report.md`.
 
 ---
 
@@ -282,13 +359,19 @@ No application code was changed as part of this assessment. This section identif
 | TC-REG-005 — Verify registration with no Host Employee selected | Include | Confirms that validation of another required registration field remains unaffected. |
 | TC-REG-006 — Verify repeat visit after checkout | Include | Confirms that registration of a returning visitor still works after the form change. |
 | TC-REG-007 — Verify duplicate active visitor registration | Include | Confirms that registration behavior does not introduce or worsen duplicate active registrations. |
+| TC-ADM-001 — Verify deactivated visitor is removed from Active Visitors | Include | Confirms that changes affecting visitor registration/status do not cause deactivated records to be incorrectly treated as active. |
+| TC-TIME-001 — Verify check-in time is displayed in receptionist local timezone | Include | Registration creates the check-in timestamp, so a form or registration-flow update could affect timestamp handling or display. |
 | TC-UI-001 — Verify visitor name suggestions do not prevent new visitor entry | Include | Autocomplete behavior is part of the registration form and could be affected by a form update. |
 | TC-CHK-001 — Verify visitor checkout | Exclude | Checkout is separate from the registration form and is not directly affected by a minor form update. |
 | TC-PAG-001 — Verify active visitor pagination at 20 visitors | Exclude | Pagination is independent of the registration form and is outside the focused regression scope. |
 
 ## Regression Strategy
 
-The regression subset prioritizes tests that directly exercise the registration form, its validation, autocomplete behavior, submission, duplicate-registration behavior, and the immediate result of registration.
+The regression subset prioritizes tests that directly exercise the registration form, its validation, autocomplete behavior, submission, duplicate-registration behavior, visitor status, timestamp creation/display, and the immediate result of registration.
+
+The deactivation test is included because visitor status directly affects whether a visitor is considered active and displayed in the Active Visitors list.
+
+The timezone test is included because registration creates the check-in timestamp that is subsequently displayed to the receptionist.
 
 Tests unrelated to the registration form, such as checkout and pagination, are excluded from this focused regression subset because the assumed change is limited to the registration form.
 
